@@ -17,6 +17,10 @@ but `chemtables` has no knowledge of, or dependency on, that project.
 ```mermaid
 flowchart LR
   consumer[Caller] --> api["chemtables.extract_tables()"]
+  api --> ensureDb{bio_entities.db present}
+  ensureDb -->|no first time| hf["HF EstevaoNaval/chemtables"]
+  hf --> localDb["data/bio_entities.db"]
+  ensureDb -->|yes| localDb
   api --> stages[schema / measurements / matching]
   api --> spawn[subprocess conda run]
   spawn --> paddleEnv["paddle env: table_detection, paddleocr_vl"]
@@ -29,8 +33,9 @@ boundary.
 
 ## Installation
 
-`chemtables` itself is a thin wrapper (`pandas` + `pylatexenc`); the GPU
-stacks live in two conda environments that the wrapper shells out to.
+`chemtables` itself is a thin wrapper (`pandas` + `pylatexenc` +
+`huggingface_hub`); the GPU stacks live in two conda environments that the
+wrapper shells out to.
 
 1. Install the package (editable, from a checkout):
 
@@ -56,17 +61,14 @@ stacks live in two conda environments that the wrapper shells out to.
    `CHEMTABLES_PADDLE_ENV` / `CHEMTABLES_ORT_ENV` environment variables if
    you named them differently.
 
-3. (Optional) Build the bio-entities catalog used for target/protein/cell-line
-   matching:
-
-   ```bash
-   python scripts/build_bio_entities_db.py
-   ```
-
-   This reads `data/sources/uniprotkb_reviewed.tsv` and
-   `data/sources/cellosaurus.txt` and writes `data/bio_entities.db`. Without
-   it, target matching is silently disabled (measurement extraction still
-   works, just without bound targets).
+3. First `extract_tables()` (or `python -m chemtables`) downloads
+   `bio_entities.db` (~640 MB) from the Hugging Face dataset
+   [EstevaoNaval/chemtables](https://huggingface.co/datasets/EstevaoNaval/chemtables)
+   into `data/bio_entities.db` when that file is missing. **This first run
+   needs internet.** Later runs reuse the local file and stay offline.
+   Override the path via `CHEMTABLES_BIO_ENTITIES_DB` or
+   `TableExtractionConfig.bio_entities_db` (an existing file is used as-is,
+   with no download).
 
 ## Usage
 
@@ -169,6 +171,7 @@ except ImportError:
 src/chemtables/
   api.py              public facade (extract_tables, TableExtractionConfig, TableResult, environment_ready)
   cli.py              argparse front-end over api.py
+  catalog.py          first-run Hugging Face download of bio_entities.db
   pipeline.py         internal stage orchestration (detect -> OCR -> schema -> measurements)
   paths.py            package data + configurable bio_entities.db resolution
   gemma_client.py      subprocess client for the ort_gemma worker
@@ -178,8 +181,7 @@ src/chemtables/
   workers/            code that runs inside the paddle/ort conda envs
   data/               packaged data (stopwords, bio_entities.sql schema)
 envs/                 conda environment.paddle.yml / environment.ort.yml
-data/                 bio_entities.db + sources/ (gitignored, built locally)
-scripts/              build_bio_entities_db.py
+data/                 bio_entities.db (gitignored, auto-downloaded on first run)
 tests/                pytest suite
 samples/              example page images
 ```

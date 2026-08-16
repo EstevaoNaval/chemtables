@@ -18,10 +18,9 @@ BIO_ENTITIES_DB_ENV_VAR = "CHEMTABLES_BIO_ENTITIES_DB"
 def default_bio_entities_db() -> Path:
     """Resolve bio_entities.db: env var override, else ./data/bio_entities.db.
 
-    The database (built from UniProtKB + Cellosaurus) is a large runtime
-    artifact and is never bundled with the package. When absent, target and
-    protein/cell-line matching is silently disabled (see
-    chemtables.matching.bio_entity.open_catalog).
+    The database is a large runtime artifact, never bundled with the package.
+    First `extract_tables` call downloads it from Hugging Face when the file
+    is missing (see chemtables.catalog.ensure_bio_entities_db).
     """
     override = os.environ.get(BIO_ENTITIES_DB_ENV_VAR)
     if override:

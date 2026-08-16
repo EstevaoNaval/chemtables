@@ -25,6 +25,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from chemtables import pipeline
+from chemtables.catalog import ensure_bio_entities_db
 from chemtables.gemma_client import DEFAULT_CONDA, DEFAULT_ORT_ENV
 from chemtables.paths import default_bio_entities_db
 
@@ -118,14 +119,15 @@ def extract_tables(
     Raises:
         ValueError: if `images` span more than one directory.
         RuntimeError: if the table-detection worker subprocess fails outright
-            (e.g. the paddle conda environment doesn't exist).
+            (e.g. the paddle conda environment doesn't exist), or if
+            `bio_entities.db` is missing and the Hugging Face download fails.
     """
     config = config or TableExtractionConfig()
     image_paths = [Path(image).resolve() for image in images]
     output_root = Path(output_dir).resolve()
     output_root.mkdir(parents=True, exist_ok=True)
 
-    bio_entities_db = (
+    bio_entities_db = ensure_bio_entities_db(
         Path(config.bio_entities_db)
         if config.bio_entities_db is not None
         else default_bio_entities_db()
