@@ -1,0 +1,12 @@
+name: paddle
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+      - paddleocr[doc-parser]
+      - paddlex
+      - beautifulsoup4
+      - --extra-index-url https://www.paddlepaddle.org.cn/packages/stable/cu129/
+      - paddlepaddle-gpu>=3.2.1

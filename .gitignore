@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Editor
+.vscode/
+
+# Runtime data (large / generated, not part of source)
+output/
+models/
+data/
+bio_entities.db
+bio_entities.db-wal
+bio_entities.db-shm
+cellosaurus.txt
+uniprotkb_reviewed.tsv

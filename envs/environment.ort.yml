@@ -1,0 +1,14 @@
+name: ort
+channels:
+  - defaults
+dependencies:
+  - nvidia::cuda-runtime=12.8
+  - nvidia::cudnn=9
+  - python=3.12
+  - pip
+  - pip:
+      - onnxruntime-gpu>=1.18,<=1.26
+      - jinja2
+      - transformers
+      - pylatexenc
+      - pandas

@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "chemtables"
+version = "0.1.0"
+description = "Extract bioactivity tables (compounds, targets, measurements) from PDF page images."
+readme = "README.md"
+license = "AGPL-3.0-only"
+requires-python = ">=3.10"
+authors = [{ name = "EstevaoNaval" }]
+dependencies = [
+    "pandas>=2.0",
+    "pylatexenc>=2.10",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "ruff>=0.5"]
+
+[project.urls]
+Homepage = "https://github.com/molmodcs/chemtables"
+Issues = "https://github.com/molmodcs/chemtables/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/chemtables"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"envs/environment.paddle.yml" = "chemtables/envs/environment.paddle.yml"
+"envs/environment.ort.yml" = "chemtables/envs/environment.ort.yml"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/chemtables",
+    "envs",
+    "scripts",
+    "tests",
+    "README.md",
+    "LICENSE",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
